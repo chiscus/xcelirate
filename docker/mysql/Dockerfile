@@ -1,0 +1,6 @@
+FROM mysql
+
+ENV MYSQL_ROOT_PASSWORD=${db_password}
+ENV MYSQL_DATABASE=${db_name}
+
+EXPOSE 3306
