@@ -16,6 +16,10 @@ RUN apt-get install -y \
     libfreetype6-dev \
     g++
 
+RUN pecl install redis-5.1.1 \
+    && pecl install xdebug-2.8.1 \
+    && docker-php-ext-enable redis xdebug
+
 RUN docker-php-ext-install \
     bz2 \
     intl \

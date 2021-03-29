@@ -43,15 +43,32 @@ class QuotesController extends ResourceController
 		// Get the curated version of the full name
 		$queryName = clean_names($name);
 
-		// Search for the all the names with AND clause
-		// With this method, the name and surname can be reversed
-		foreach ($queryName as $authorName) {
-			$this->model->like('author', $authorName);
+		// Check if there is a key on Redis for this user and number of quotes
+		$cacheKeyName = $queryName.'-'.$limit;
+
+		if (!$shoutedQuotes = cache($cacheKeyName))
+		{
+		    echo 'Saving to the cache!';
+
+				// Separate full name
+			  $queryName = explode('-', $queryName);
+
+				// Search for the all the names with AND clause
+				// With this method, the name and surname can be reversed
+				foreach ($queryName as $authorName) {
+					$this->model->like('author', $authorName);
+				}
+
+				$foundQuotes = $this->model->findAll($limit);
+
+				$shoutedQuotes = process_quotes($foundQuotes);
+
+		    // Save into the cache for 5 minutes
+		    cache()->save($cacheKeyName, $shoutedQuotes, 300);
+		}else{
+				$cache = \Config\Services::cache();
+				$shoutedQuotes = $cache->get($cacheKeyName);
 		}
-
-		$foundQuotes = $this->model->findAll($limit);
-
-		$shoutedQuotes = process_quotes($foundQuotes);
 
 		return $this->respond($shoutedQuotes);
 	}
