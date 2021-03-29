@@ -15,6 +15,14 @@ class QuotesController extends ResourceController
 	protected $modelName = 'App\Models\QuotesModel';
 	protected $format = 'json';
 
+	public function __construct()
+	{
+		// Created constructor to globally access the new helper
+		helper('json_error');
+		helper('quotes_processor');
+		helper('clean_names');
+	}
+
 	public function index()
 	{
 		//
@@ -28,21 +36,24 @@ class QuotesController extends ResourceController
 	 */
 	public function show($name = null)
 	{
-		//
+		// Verify that the limit is under 10
+		$limit = $this->request->getVar('limit');
+		if($limit > 10) return $this->respond(show_json_error('Limit cannot be more than 10!'));
 
-		// Verify that the name is separated by dashes
-		$queryName = strpos($name, ' ') ? str_replace(' ', '-', $name) : $name;
-		// Verify that the name is lower case
-		$queryName = strtolower($queryName);
-		// Separate full name
-		$queryName = explode('-', $queryName);
+		// Get the curated version of the full name
+		$queryName = clean_names($name);
 
 		// Search for the all the names with AND clause
 		// With this method, the name and surname can be reversed
-		foreach ($queryName as $searchName) {
-			$this->model->like('author', $searchName);
+		foreach ($queryName as $authorName) {
+			$this->model->like('author', $authorName);
 		}
-		return $this->respond($this->model->findAll());
+
+		$foundQuotes = $this->model->findAll($limit);
+
+		$shoutedQuotes = process_quotes($foundQuotes);
+
+		return $this->respond($shoutedQuotes);
 	}
 
 	/**
