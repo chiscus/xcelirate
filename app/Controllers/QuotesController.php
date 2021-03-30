@@ -16,16 +16,12 @@ class QuotesController extends ResourceController
 	public $maxLimit 		= 10;
 	public $shouldShout = true;
 
-	public function __construct()
-	{
-		// Created constructor to globally access our helpers
-		helper(['json_error', 'quotes_processor', 'post_curl', 'message', 'query_limit']);
-	}
-
 	public function index()
 	{
 		// Sholl all entries in Database
-		return $this->respond($this->model->findAll());
+		//return $this->respond($this->model->findAll());
+		$helpersLibrary = new HelpersLibrary();
+		return $this->respond($helpersLibrary->showJsonError('An author must be given!'));
 	}
 
 	public function show($nameURI = null)
@@ -46,7 +42,7 @@ class QuotesController extends ResourceController
 
 		// Check if there is a key on Redis for this author and number of quotes
 		if (!$shoutedQuotes = cache($cacheKeyName)){
-		    if(SHOW_REDIS_MSGS) echo 'Saving to the cache!';
+		    //if(SHOW_REDIS_MSGS) echo 'Saving to the cache!';
 
 				// Separate full name
 			  $queryNameArray = explode('-', $queryName);
@@ -70,7 +66,7 @@ class QuotesController extends ResourceController
 				// Get data from Redis
 				$foundQuotes = cache()->get($cacheKeyName);
 		}
-		
+
 		return $this->respond($foundQuotes);
 	}
 

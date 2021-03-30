@@ -7,13 +7,15 @@
 	"require": {
 		"php": "^7.3||^8.0",
 		"codeigniter4/framework": "^4",
-		"php-amqplib/php-amqplib": "^3.0"
+		"php-amqplib/php-amqplib": "^3.0",
+		"guzzlehttp/guzzle": "^7.3"
 	},
 	"require-dev": {
 		"fakerphp/faker": "^1.9",
 		"mikey179/vfsstream": "^1.6",
 		"phpunit/phpunit": "^9.1",
-		"phpspec/phpspec": "^7.0"
+		"phpspec/phpspec": "^7.0",
+		"behat/behat": "^3.8"
 	},
 	"suggest": {
 		"ext-fileinfo": "Improves mime type detection for files"
