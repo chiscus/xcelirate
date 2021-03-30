@@ -21,6 +21,8 @@ class QuotesController extends ResourceController
 		helper('json_error');
 		helper('quotes_processor');
 		helper('clean_names');
+		helper('post_curl');
+		helper('message');
 	}
 
 	public function index()
@@ -63,8 +65,17 @@ class QuotesController extends ResourceController
 
 				$shoutedQuotes = process_quotes($foundQuotes);
 
-		    // Save into the cache for 5 minutes
-		    cache()->save($cacheKeyName, $shoutedQuotes, 300);
+				// Send petition to the MessageController
+				//cache()->save($cacheKeyName, $shoutedQuotes, 300);
+				message($cacheKeyName, $shoutedQuotes);
+
+				/*$params= array(
+           'key' => $cacheKeyName,
+           'quotes' => json_encode($shoutedQuotes),
+        );
+				$url = 'http://awesomequotesapi.com/sender';
+				postCURL($url, $params);*/
+				//echo '<br><hr><h2>'.postCURL($url, $params).'</h2><br><hr><br>';
 		}else{
 				$cache = \Config\Services::cache();
 				$shoutedQuotes = $cache->get($cacheKeyName);

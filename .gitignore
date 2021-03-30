@@ -126,3 +126,4 @@ nb-configuration.xml
 /.phpunit.*.cache
 
 docker/apache/apache_log/*
+docker/rabbitmq/*

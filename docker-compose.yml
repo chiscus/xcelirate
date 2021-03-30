@@ -32,6 +32,14 @@ services:
               - db
           links:
               - db
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        ports:
+            - 5672:5672
+            - 15672:15672
+        volumes:
+            - ./docker/rabbitmq/data/:/var/lib/rabbitmq/
+            - ./docker/rabbitmq/log/:/var/log/rabbitmq
     redis:
         image: redis:latest
         ports:

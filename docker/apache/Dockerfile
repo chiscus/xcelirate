@@ -27,6 +27,7 @@ RUN docker-php-ext-install \
     opcache \
     calendar \
     pdo_mysql \
+    sockets    \
     mysqli
 
 # 2. set up document root for apache
