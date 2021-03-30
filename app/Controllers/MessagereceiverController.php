@@ -6,7 +6,7 @@ use CodeIgniter\RESTful\ResourceController;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class MessagesenderController extends ResourceController
+class MessagereceiverController extends ResourceController
 {
 	public function store()
 	{

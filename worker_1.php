@@ -20,7 +20,7 @@ $callback = function ($msg) {
 
     $ch = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL,"http://awesomequotesapi.com/sender");
+    curl_setopt($ch, CURLOPT_URL,"http://awesomequotesapi.com/receiver");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "message=".$msg->body);
 
@@ -32,7 +32,7 @@ $callback = function ($msg) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     $server_output = curl_exec($ch);
-    var_dump($server_output);
+    //var_dump($server_output);
     curl_close ($ch);
 };
 

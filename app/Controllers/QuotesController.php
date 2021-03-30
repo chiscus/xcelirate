@@ -3,134 +3,100 @@
 namespace App\Controllers;
 
 use CodeIgniter\RESTful\ResourceController;
+use App\Libraries\QuoteLibrary;
+use App\Libraries\HelpersLibrary;
 
 class QuotesController extends ResourceController
 {
-	/**
-	 * Return an array of resource objects, themselves in array format
-	 *
-	 * @return mixed
-	 */
 
+	// Attached the QuotesModel to work with it
 	protected $modelName = 'App\Models\QuotesModel';
 	protected $format = 'json';
 
+	public $maxLimit 		= 10;
+	public $shouldShout = true;
+
 	public function __construct()
 	{
-		// Created constructor to globally access the new helper
-		helper('json_error');
-		helper('quotes_processor');
-		helper('clean_names');
-		helper('post_curl');
-		helper('message');
+		// Created constructor to globally access our helpers
+		helper(['json_error', 'quotes_processor', 'post_curl', 'message', 'query_limit']);
 	}
 
 	public function index()
 	{
-		//
+		// Sholl all entries in Database
 		return $this->respond($this->model->findAll());
 	}
 
-	/**
-	 * Return the properties of a resource object
-	 *
-	 * @return mixed
-	 */
-	public function show($name = null)
+	public function show($nameURI = null)
 	{
-		// Verify that the limit is under 10
+		$quoteLibrary 	= new QuoteLibrary();
+		$helpersLibrary = new HelpersLibrary();
+
+		// Verify the limit of the query
 		$limit = $this->request->getVar('limit');
-		if($limit > 10) return $this->respond(show_json_error('Limit cannot be more than 10!'));
+		if($limit > $this->maxLimit) return $this->respond($helpersLibrary->showJsonError('Limit cannot be more than ' . $this->maxLimit . '!'));
 
 		// Get the curated version of the full name
-		$queryName = clean_names($name);
+		//$queryName = getCleanName($nameURI);
+		$queryName = $quoteLibrary->getCleanName($nameURI);
 
-		// Check if there is a key on Redis for this user and number of quotes
-		$cacheKeyName = $queryName.'-'.$limit;
+		// Generate the key value for the cache
+		$cacheKeyName = $quoteLibrary->getKeyName($queryName, $limit);
 
-		if (!$shoutedQuotes = cache($cacheKeyName))
-		{
-		    echo 'Saving to the cache!';
+		// Check if there is a key on Redis for this author and number of quotes
+		if (!$shoutedQuotes = cache($cacheKeyName)){
+		    if(SHOW_REDIS_MSGS) echo 'Saving to the cache!';
 
 				// Separate full name
-			  $queryName = explode('-', $queryName);
+			  $queryNameArray = explode('-', $queryName);
 
 				// Search for the all the names with AND clause
 				// With this method, the name and surname can be reversed
-				foreach ($queryName as $authorName) {
+				foreach ($queryNameArray as $authorName) {
 					$this->model->like('author', $authorName);
 				}
 
 				$foundQuotes = $this->model->findAll($limit);
 
-				$shoutedQuotes = process_quotes($foundQuotes);
+				// Make capital letters and add ! if SHOUT_QUOTE constant is true
+				foreach ($foundQuotes as $key => $quote) {
+					$foundQuotes[$key]['quote'] = $quoteLibrary->processQuote($quote['quote']);
+				}
 
-				// Send petition to the MessageController
-				//cache()->save($cacheKeyName, $shoutedQuotes, 300);
-				message($cacheKeyName, $shoutedQuotes);
-
-				/*$params= array(
-           'key' => $cacheKeyName,
-           'quotes' => json_encode($shoutedQuotes),
-        );
-				$url = 'http://awesomequotesapi.com/sender';
-				postCURL($url, $params);*/
-				//echo '<br><hr><h2>'.postCURL($url, $params).'</h2><br><hr><br>';
+				// Send petition to the MessageController to cache this data
+				$helpersLibrary->sendQueueMessage($cacheKeyName, $foundQuotes, 'redis_messages');
 		}else{
-				$cache = \Config\Services::cache();
-				$shoutedQuotes = $cache->get($cacheKeyName);
+				// Get data from Redis
+				$foundQuotes = cache()->get($cacheKeyName);
 		}
-
-		return $this->respond($shoutedQuotes);
+		
+		return $this->respond($foundQuotes);
 	}
 
-	/**
-	 * Return a new resource object, with default properties
-	 *
-	 * @return mixed
-	 */
 	public function new()
 	{
 		//
 	}
 
-	/**
-	 * Create a new resource object, from "posted" parameters
-	 *
-	 * @return mixed
-	 */
 	public function create()
 	{
 		//
 	}
 
-	/**
-	 * Return the editable properties of a resource object
-	 *
-	 * @return mixed
-	 */
 	public function edit($id = null)
 	{
 		//
 	}
 
-	/**
-	 * Add or update a model resource, from "posted" properties
-	 *
-	 * @return mixed
-	 */
 	public function update($id = null)
 	{
 		//
 	}
 
-	/**
-	 * Delete the designated resource object from the model
-	 *
-	 * @return mixed
-	 */
 	public function delete($id = null)
 	{
 		//
 	}
+
 }

@@ -34,8 +34,9 @@ $routes->setAutoRoute(true);
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
 $routes->get('/test', 'TestController::index');
-$routes->post('/sender', 'MessagesenderController::store');
+$routes->post('/receiver', 'MessagereceiverController::store');
 
+// Create CRUD structure
 $routes->resource('shout', ['controller' =>'QuotesController']);
 
 /*
