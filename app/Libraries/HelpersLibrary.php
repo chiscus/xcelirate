@@ -32,12 +32,8 @@
 
         $keyName = $quoteLibrary->getKeyName(json_encode($value), $key, 'rabbitmq');
 
-        //var_dump($keyName);
-
         $msg = new AMQPMessage($keyName);
         $channel->basic_publish($msg, '', $channelName);
-
-        //if(SHOW_REDIS_MSGS) echo "Message sent!'\n";
 
         $channel->close();
         $connection->close();

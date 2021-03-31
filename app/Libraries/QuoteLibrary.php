@@ -16,6 +16,7 @@
 
     function getKeyName($fullname, $key, $type = 'redis')
     {
+      // Prepare the key depending on the server using it
       if($type == 'redis') return $fullname . '-' . $key;
       if($type == 'rabbitmq') return $key . '*' . $fullname;
       return $fullname;
@@ -23,8 +24,7 @@
 
     function processQuote($quote)
     {
-      //if(isset(SHOUT_QUOTE) && !SHOUT_QUOTE) return $quote;
-
+      // Quote marks were breaking the tests, so I normalized them
       $quote = str_replace("’", "´", $quote);
 
       // Transform to uppercase

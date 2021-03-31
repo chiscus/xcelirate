@@ -24,7 +24,7 @@ class QuoteLibrarySpec extends ObjectBehavior
     {
         $this->getKeyName("steve-jobs",4)->shouldReturn("steve-jobs-4");
         $this->getKeyName("norman-foster",14)->shouldReturn("norman-foster-14");
-        $this->getKeyName("bob-marley",9,'rabbitmq')->shouldReturn("bob-marley*9");
+        $this->getKeyName("bob-marley",9,'rabbitmq')->shouldReturn("9*bob-marley");
     }
 
     function it_shouts_the_quote()

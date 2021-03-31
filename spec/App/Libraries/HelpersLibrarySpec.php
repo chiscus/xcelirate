@@ -18,9 +18,4 @@ class HelpersLibrarySpec extends ObjectBehavior
         $this->showJsonError("Critical error")->shouldReturn('{"status":false,"error":"Server Error","message":"Critical error"}');
     }
 
-    /*function it_sends_messages()
-    {
-        $this->sendQueueMessage("testkey-4","{data}",'testchannel')->shouldReturn(true);
-    }*/
-
 }

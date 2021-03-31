@@ -77,8 +77,3 @@ defined('EXIT_USER_INPUT')     || define('EXIT_USER_INPUT', 7); // invalid user 
 defined('EXIT_DATABASE')       || define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
-
-// Propietary constants for the app
-defined('MAX_QUOTES')       || define('MAX_QUOTES', 10);
-defined('SHOUT_QUOTE')      || define('SHOUT_QUOTE', true);
-defined('SHOW_REDIS_MSGS')  || define('SHOW_REDIS_MSGS', true);

@@ -9,16 +9,16 @@ use App\Libraries\HelpersLibrary;
 class QuotesController extends ResourceController
 {
 
-	// Attached the QuotesModel to work with it
+	// Referenced the QuotesModel to work with it
 	protected $modelName = 'App\Models\QuotesModel';
 	protected $format = 'json';
 
-	public $maxLimit 		= 10;
-	public $shouldShout = true;
+	public $maxLimit 			= 10;
+	public $showMessages 	= false;
 
 	public function index()
 	{
-		// Sholl all entries in Database
+		// Show all entries in Database
 		//return $this->respond($this->model->findAll());
 		$helpersLibrary = new HelpersLibrary();
 		return $this->respond($helpersLibrary->showJsonError('An author must be given!'));
@@ -29,8 +29,9 @@ class QuotesController extends ResourceController
 		$quoteLibrary 	= new QuoteLibrary();
 		$helpersLibrary = new HelpersLibrary();
 
-		// Verify the limit of the query
+		// Verify the limit of the query. Set to 10 if null
 		$limit = $this->request->getVar('limit');
+		if(!$limit) $limit = $this->maxLimit;
 		if($limit > $this->maxLimit) return $this->respond($helpersLibrary->showJsonError('Limit cannot be more than ' . $this->maxLimit . '!'));
 
 		// Get the curated version of the full name
@@ -42,7 +43,7 @@ class QuotesController extends ResourceController
 
 		// Check if there is a key on Redis for this author and number of quotes
 		if (!$shoutedQuotes = cache($cacheKeyName)){
-		    //if(SHOW_REDIS_MSGS) echo 'Saving to the cache!';
+		    if($this->showMessages) echo 'Saving to the cache!';
 
 				// Separate full name
 			  $queryNameArray = explode('-', $queryName);
@@ -55,7 +56,7 @@ class QuotesController extends ResourceController
 
 				$foundQuotes = $this->model->findAll($limit);
 
-				// Make capital letters and add ! if SHOUT_QUOTE constant is true
+				// Make capital letters and add !
 				foreach ($foundQuotes as $key => $quote) {
 					$foundQuotes[$key]['quote'] = $quoteLibrary->processQuote($quote['quote']);
 				}
@@ -63,6 +64,7 @@ class QuotesController extends ResourceController
 				// Send petition to the MessageController to cache this data
 				$helpersLibrary->sendQueueMessage($cacheKeyName, $foundQuotes, 'redis_messages');
 		}else{
+				if($this->showMessages) echo 'Retrieving from the cache!';
 				// Get data from Redis
 				$foundQuotes = cache()->get($cacheKeyName);
 		}
